@@ -60,12 +60,12 @@ export function Chat() {
   const [isListening, setIsListening] = useState(false)
 
   const toggleSpeechRecognition = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    if (!('webkitSpeechRecognition' in (window as any)) && !('SpeechRecognition' in (window as any))) {
       alert('お使いのブラウザは音声認識に対応していません。Google Chromeをお試しください。')
       return
     }
     
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition()
     recognition.lang = 'ja-JP'
