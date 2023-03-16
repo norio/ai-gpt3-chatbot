@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Button } from './Button'
 import { type ChatGPTMessage, ChatLine, LoadingChatLine } from './ChatLine'
 import { useCookies } from 'react-cookie'
@@ -56,12 +56,42 @@ export function Chat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   useEffect(() => {
     if (!cookie[COOKIE_NAME]) {
       // generate a semi random short id
       const randomId = Math.random().toString(36).substring(7)
       setCookie(COOKIE_NAME, randomId)
+    }
+    
+    // SpeechRecognition インスタンスを生成し、設定します
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) {
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = false
+      recognitionRef.current.interimResults = false
+      recognitionRef.current.lang = 'ja-JP'
+
+      // 音声認識結果イベント
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript
+        setInput(transcript)
+        sendMessage(transcript)
+      }
+
+      // 音声認識エラーイベント
+      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('音声認識エラー:', event.error)
+      }
+    } else {
+      console.warn('ブラウザはSpeechRecognition APIをサポートしていません。')
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
     }
   }, [cookie, setCookie])
 
@@ -119,6 +149,14 @@ export function Chat() {
       setLoading(false)
     }
   }
+  
+  const startListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.start()
+    } else {
+      console.warn('音声認識を開始できません。')
+    }
+  }
 
   return (
     <div className="rounded-2xl border-zinc-100  lg:border lg:p-6">
@@ -137,6 +175,7 @@ export function Chat() {
         input={input}
         setInput={setInput}
         sendMessage={sendMessage}
+        startListening={startListening}
       />
     </div>
   )
