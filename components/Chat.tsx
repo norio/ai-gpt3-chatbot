@@ -41,6 +41,13 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
     >
       Say
     </Button>
+    <Button
+      type="button"
+      className="ml-4 flex-none"
+      onClick={startListening}
+    >
+      Listen
+    </Button>
   </div>
 )
 
