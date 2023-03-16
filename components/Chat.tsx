@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from './Button'
 import { type ChatGPTMessage, ChatLine, LoadingChatLine } from './ChatLine'
 import { useCookies } from 'react-cookie'
@@ -13,85 +13,83 @@ export const initialMessages: ChatGPTMessage[] = [
   },
 ]
 
-const InputMessage = ({ input, setInput, sendMessage, startListening }: any) => (
-  <div className="mt-6 flex clear-both">
-    <input
-      type="text"
-      aria-label="chat input"
-      required
-      className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 sm:text-sm"
-      value={input}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
+const InputMessage = ({ input, setInput, sendMessage }: any) => {
+  const [isListening, setIsListening] = useState(false)
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)()
+  recognition.continuous = false
+  recognition.interimResults = false
+  recognition.lang = 'ja-JP'
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript
+    setInput(transcript)
+    setIsListening(false)
+    recognition.stop()
+  }
+
+  recognition.onerror = () => {
+    setIsListening(false)
+    recognition.stop()
+  }
+
+  return (
+    <div className="mt-6 flex clear-both">
+      <input
+        type="text"
+        aria-label="chat input"
+        required
+        className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 sm:text-sm"
+        value={input}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            sendMessage(input)
+            setInput('')
+          }
+        }}
+        onChange={(e) => {
+          setInput(e.target.value)
+        }}
+      />
+      <Button
+        type="submit"
+        className="ml-4 flex-none"
+        onClick={() => {
           sendMessage(input)
           setInput('')
-        }
-      }}
-      onChange={(e) => {
-        setInput(e.target.value)
-      }}
-    />
-    <Button
-      type="submit"
-      className="ml-4 flex-none"
-      onClick={() => {
-        sendMessage(input)
-        setInput('')
-      }}
-    >
-      Say
-    </Button>
-    <Button
-      type="button"
-      className="ml-4 flex-none"
-      onClick={startListening}
-    >
-      Listen
-    </Button>
-  </div>
-)
+        }}
+      >
+        Say
+      </Button>
+      <Button
+        type="button"
+        className={`ml-4 flex-none ${isListening ? 'bg-blue-500' : ''}`}
+        onClick={() => {
+          if (!isListening) {
+            recognition.start()
+          } else {
+            recognition.stop()
+          }
+          setIsListening(!isListening)
+        }}
+      >
+        {isListening ? 'Stop' : 'Voice'}
+      </Button>
+    </div>
+  )
+}
 
 export function Chat() {
   const [messages, setMessages] = useState<ChatGPTMessage[]>(initialMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   useEffect(() => {
     if (!cookie[COOKIE_NAME]) {
       // generate a semi random short id
       const randomId = Math.random().toString(36).substring(7)
       setCookie(COOKIE_NAME, randomId)
-    }
-    
-    // SpeechRecognition インスタンスを生成し、設定します
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (SpeechRecognition) {
-      recognitionRef.current = new SpeechRecognition()
-      recognitionRef.current.continuous = false
-      recognitionRef.current.interimResults = false
-      recognitionRef.current.lang = 'ja-JP'
-
-      // 音声認識結果イベント
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript
-        setInput(transcript)
-        sendMessage(transcript)
-      }
-
-      // 音声認識エラーイベント
-      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('音声認識エラー:', event.error)
-      }
-    } else {
-      console.warn('ブラウザはSpeechRecognition APIをサポートしていません。')
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop()
-      }
     }
   }, [cookie, setCookie])
 
@@ -150,14 +148,6 @@ export function Chat() {
     }
   }
   
-  const startListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.start()
-    } else {
-      console.warn('音声認識を開始できません。')
-    }
-  }
-
   return (
     <div className="rounded-2xl border-zinc-100  lg:border lg:p-6">
       {messages.map(({ content, role }, index) => (
@@ -175,7 +165,6 @@ export function Chat() {
         input={input}
         setInput={setInput}
         sendMessage={sendMessage}
-        startListening={startListening}
       />
     </div>
   )
