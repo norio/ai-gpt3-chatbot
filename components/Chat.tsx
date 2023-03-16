@@ -13,7 +13,7 @@ export const initialMessages: ChatGPTMessage[] = [
   },
 ]
 
-const InputMessage = ({ input, setInput, sendMessage }: any) => (
+const InputMessage = ({ input, setInput, sendMessage, toggleSpeechRecognition, isListening }: any) => (
   <div className="mt-6 flex clear-both">
     <input
       type="text"
@@ -32,6 +32,14 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
       }}
     />
     <Button
+      className="ml-2 flex-none"
+      onClick={() => {
+        toggleSpeechRecognition()
+      }}
+    >
+      {isListening ? '音声認識停止' : '音声認識開始'}
+    </Button>
+    <Button
       type="submit"
       className="ml-4 flex-none"
       onClick={() => {
@@ -49,6 +57,38 @@ export function Chat() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
+  const [isListening, setIsListening] = useState(false)
+
+  const toggleSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('お使いのブラウザは音声認識に対応していません。Google Chromeをお試しください。')
+      return
+    }
+
+    const recognition = new webkitSpeechRecognition()
+    recognition.lang = 'ja-JP'
+    recognition.interimResults = true
+
+    if (!isListening) {
+      recognition.start()
+      setIsListening(true)
+    } else {
+      recognition.stop()
+      setIsListening(false)
+    }
+
+    recognition.onresult = (event) => {
+      const lastIndex = event.results.length - 1
+      const transcript = event.results[lastIndex][0].transcript
+      setInput(transcript)
+    }
+
+    recognition.onerror = (event) => {
+      console.error(event)
+      recognition.stop()
+      setIsListening(false)
+    }
+  }
 
   useEffect(() => {
     if (!cookie[COOKIE_NAME]) {
@@ -130,6 +170,8 @@ export function Chat() {
         input={input}
         setInput={setInput}
         sendMessage={sendMessage}
+        toggleSpeechRecognition={toggleSpeechRecognition}
+        isListening={isListening}
       />
     </div>
   )
