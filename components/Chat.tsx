@@ -16,7 +16,7 @@ export const initialMessages: ChatGPTMessage[] = [
 const InputMessage = ({ input, setInput, sendMessage }: any) => {
   const [isListening, setIsListening] = useState(false)
 
-  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)()
+  const recognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
   recognition.continuous = false
   recognition.interimResults = false
   recognition.lang = 'ja-JP'
