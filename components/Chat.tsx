@@ -80,13 +80,13 @@ export function Chat() {
       setIsListening(false)
     }
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const lastIndex = event.results.length - 1
       const transcript = event.results[lastIndex][0].transcript
       setInput(transcript)
     }
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error(event)
       recognition.stop()
       setIsListening(false)
