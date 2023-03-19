@@ -16,6 +16,7 @@
     "react": "latest",
     "react-cookie": "^4.1.1",
     "react-dom": "latest",
+    "react-markdown": "^8.0.5",
     "react-wrap-balancer": "^0.1.5"
   },
   "devDependencies": {
