@@ -70,7 +70,7 @@ export function Chat() {
     const recognition = new SpeechRecognition()
     recognition.lang = 'ja-JP'
     recognition.interimResults = true
-    recognition.continuous = false;
+    recognition.continuous = true
 
     if (!isListening) {
       recognition.start()
@@ -157,7 +157,7 @@ export function Chat() {
   }
   
   return (
-    <div className="rounded-2xl border-zinc-100  lg:border lg:p-6">
+    <div className="rounded-2xl border-zinc-100">
       {messages.map(({ content, role }, index) => (
         <ChatLine key={index} role={role} content={content} />
       ))}
