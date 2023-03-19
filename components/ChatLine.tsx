@@ -51,13 +51,14 @@ export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
   return (
     <div
       className={
-        role != 'assistant' ? 'float-right clear-both' : 'float-left clear-both'
+        // role != 'assistant' ? 'float-right clear-both' : 'float-left clear-both'
+        role != 'assistant' ? '' : ''
       }
     >
-      <BalancerWrapper>
-        <div className="float-right mb-5 rounded-lg bg-white px-4 py-5 shadow-lg ring-1 ring-zinc-100 sm:px-6">
-          <div className="flex space-x-3">
-            <div className="flex-1 gap-4">
+      <div>
+        <div className="mb-5 rounded-lg bg-white px-4 py-5 shadow-lg ring-1 ring-zinc-100 sm:px-6">
+          <div className="space-x-3">
+            <div className="gap-4">
               <p className="font-large text-xxl text-gray-900">
                 <a href="#" className="hover:underline">
                   {role == 'assistant' ? 'AI' : 'You'}
@@ -74,7 +75,7 @@ export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
             </div>
           </div>
         </div>
-      </BalancerWrapper>
+      </div>
     </div>
   )
 }
