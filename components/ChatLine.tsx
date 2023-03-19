@@ -1,8 +1,8 @@
 import clsx from 'clsx'
-import Balancer from 'react-wrap-balancer'
-
-// wrap Balancer to remove type errors :( - @TODO - fix this ugly hack
-const BalancerWrapper = (props: any) => <Balancer {...props} />
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import {Prism as SyntaxHighlighter, SyntaxHighlighterProps} from 'react-syntax-highlighter'
+import okaidia from 'react-syntax-highlighter/dist/cjs/styles/prism/okaidia';
 
 type ChatGPTAgent = 'user' | 'system' | 'assistant'
 
@@ -33,20 +33,11 @@ export const LoadingChatLine = () => (
   </div>
 )
 
-// util helper to convert new lines to <br /> tags
-const convertNewLines = (text: string) =>
-  text.split('\n').map((line, i) => (
-    <span key={i}>
-      {line}
-      <br />
-    </span>
-  ))
 
 export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
   if (!content) {
     return null
   }
-  const formatteMessage = convertNewLines(content)
 
   return (
     <div
@@ -64,14 +55,37 @@ export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
                   {role == 'assistant' ? 'AI' : 'You'}
                 </a>
               </p>
-              <p
+              <div
                 className={clsx(
                   'text ',
-                  role == 'assistant' ? 'font-semibold font- ' : 'text-gray-400'
+                  role == 'assistant' ? '' : 'text-gray-400'
                 )}
               >
-                {formatteMessage}
-              </p>
+                <ReactMarkdown 
+                  linkTarget={"_blank"} 
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    code({node, inline, className, children, ...props}) {
+                      const match = /language-(\w+)/.exec(className || '')
+                      return !inline && match ? (
+                        <SyntaxHighlighter
+                          children={String(children).replace(/\n$/, '')}
+                          style={okaidia}
+                          language={match[1]}
+                          PreTag="div"
+                          {...props}
+                        />
+                      ) : (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      )
+                    }
+                  }}
+                >
+                  {content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         </div>
