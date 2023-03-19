@@ -3,6 +3,10 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {Prism as SyntaxHighlighter, SyntaxHighlighterProps} from 'react-syntax-highlighter'
 import okaidia from 'react-syntax-highlighter/dist/cjs/styles/prism/okaidia';
+import {
+  CodeComponent,
+  ReactMarkdownNames,
+} from 'react-markdown/lib/ast-to-react';
 
 type ChatGPTAgent = 'user' | 'system' | 'assistant'
 
@@ -33,11 +37,32 @@ export const LoadingChatLine = () => (
   </div>
 )
 
+const CodeBlock: CodeComponent | ReactMarkdownNames = ({
+  inline,
+  className,
+  children,
+  ...props
+}) => {
+  const match = /language-(\w+)/.exec(className || '');
+  return !inline && match ? (
+    <SyntaxHighlighter style={okaidia} language={match[1]} PreTag="div" {...props}>
+      {String(children).replace(/\n$/, '')}
+    </SyntaxHighlighter>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  );
+};
 
 export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
   if (!content) {
     return null
   }
+
+  const components = {
+    code: CodeBlock,
+  };
 
   return (
     <div
@@ -64,24 +89,7 @@ export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
                 <ReactMarkdown 
                   linkTarget={"_blank"} 
                   remarkPlugins={[remarkGfm]}
-                  components={{
-                    code({node, inline, className, children, ...props}) {
-                      const match = /language-(\w+)/.exec(className || '')
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          children={String(children).replace(/\n$/, '')}
-                          style={okaidia}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                        />
-                      ) : (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      )
-                    }
-                  }}
+                  components={components}
                 >
                   {content}
                 </ReactMarkdown>
