@@ -1,5 +1,5 @@
-import type { AppProps } from 'next/app'
 import { Analytics } from '@vercel/analytics/react'
+import type { AppProps } from 'next/app'
 import Layout from '../components/Layout'
 
 import '@vercel/examples-ui/globals.css'
