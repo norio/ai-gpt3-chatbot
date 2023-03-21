@@ -20,7 +20,7 @@ const InputMessage = ({
   toggleSpeechRecognition,
   isListening,
 }: any) => (
-  <div className='flex clear-both mt-6'>
+  <div className='flex'>
     <input
       type='text'
       aria-label='chat input'
@@ -170,7 +170,7 @@ export function Chat() {
   };
 
   return (
-    <div className='rounded-2xl border-zinc-100'>
+    <div className='flex flex-col gap-1'>
       {messages.map(({ content, role }, index) => (
         <ChatLine key={index} role={role} content={content} />
       ))}

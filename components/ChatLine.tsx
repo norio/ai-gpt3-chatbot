@@ -66,29 +66,20 @@ export function ChatLine({ role = "assistant", content }: ChatGPTMessage) {
 
   return (
     <div className={role != "assistant" ? "" : ""}>
-      <div>
-        <div className='px-4 py-5 mb-1 bg-white rounded-lg shadow-lg ring-1 ring-zinc-100 sm:px-6'>
-          <div className='space-x-3'>
-            <div className='gap-4'>
-              <p className='font-semibold text-gray-900 font-large text-xxl'>
-                {role == "assistant" ? "AI" : "You"}
-              </p>
-              <div
-                className={clsx(
-                  "text ",
-                  role == "assistant" ? "" : "text-gray-400"
-                )}
-              >
-                <ReactMarkdown
-                  linkTarget={"_blank"}
-                  remarkPlugins={[remarkGfm]}
-                  // components={components}
-                >
-                  {content}
-                </ReactMarkdown>
-              </div>
-            </div>
-          </div>
+      <div className='px-5 py-4 bg-white rounded-lg shadow-lg ring-1 ring-zinc-100'>
+        <p className='font-semibold text-gray-900 font-large text-xxl'>
+          {role == "assistant" ? "AI" : "You"}
+        </p>
+        <div
+          className={clsx("text ", role == "assistant" ? "" : "text-gray-400")}
+        >
+          <ReactMarkdown
+            linkTarget={"_blank"}
+            remarkPlugins={[remarkGfm]}
+            // components={components}
+          >
+            {content}
+          </ReactMarkdown>
         </div>
       </div>
     </div>
