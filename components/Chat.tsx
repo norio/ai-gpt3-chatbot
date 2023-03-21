@@ -38,22 +38,22 @@ const InputMessage = ({
       }}
     />
     <Button
-      className='flex-none ml-2'
+      className='flex-none ml-1'
       onClick={() => {
         toggleSpeechRecognition();
       }}
     >
-      {isListening ? "音声認識停止" : "音声認識開始"}
+      {isListening ? "Voice Off" : "Voice On"}
     </Button>
     <Button
       type='submit'
-      className='flex-none ml-4'
+      className='flex-none ml-1'
       onClick={() => {
         sendMessage(input);
         setInput("");
       }}
     >
-      Say
+      Send
     </Button>
   </div>
 );
@@ -178,9 +178,9 @@ export function Chat() {
       {loading && <LoadingChatLine />}
 
       {messages.length < 2 && (
-        <span className='flex flex-grow clear-both mx-auto text-gray-600'>
+        <div className='m-4 text-gray-600'>
           Type a message to start the conversation
-        </span>
+        </div>
       )}
       <InputMessage
         input={input}
