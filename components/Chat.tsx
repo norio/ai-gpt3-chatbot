@@ -20,7 +20,7 @@ const InputMessage = ({
   toggleSpeechRecognition,
   isListening,
 }: any) => (
-  <div className='mt-6 flex clear-both'>
+  <div className='flex clear-both mt-6'>
     <input
       type='text'
       aria-label='chat input'
@@ -38,7 +38,7 @@ const InputMessage = ({
       }}
     />
     <Button
-      className='ml-2 flex-none'
+      className='flex-none ml-2'
       onClick={() => {
         toggleSpeechRecognition();
       }}
@@ -47,7 +47,7 @@ const InputMessage = ({
     </Button>
     <Button
       type='submit'
-      className='ml-4 flex-none'
+      className='flex-none ml-4'
       onClick={() => {
         sendMessage(input);
         setInput("");
@@ -178,7 +178,7 @@ export function Chat() {
       {loading && <LoadingChatLine />}
 
       {messages.length < 2 && (
-        <span className='mx-auto flex flex-grow text-gray-600 clear-both'>
+        <span className='flex flex-grow clear-both mx-auto text-gray-600'>
           Type a message to start the conversation
         </span>
       )}
